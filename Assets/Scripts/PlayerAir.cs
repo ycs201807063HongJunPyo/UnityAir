@@ -11,11 +11,21 @@ public class PlayerAir : MonoBehaviour
     public bool isWallLeft;
     public bool isWallBottom;
 
+    public GameObject bulletObjA;
+    public GameObject bulletObjB;
+
+
+    public int bulletCount;
+    public float maxBulletDelay;
+    public float curBulletDelay;
+    public float maxShotDelay;
+    public float curShotDelay;
     // Update is called once per frame
     void Update()
     {
         Move();
-        
+        Fire();
+        Reload();
     }
     public void Move() {
         float h = Input.GetAxisRaw("Horizontal");
@@ -30,6 +40,26 @@ public class PlayerAir : MonoBehaviour
         Vector3 nextPos = new Vector3(h, v, 0) * currentSpeed * Time.deltaTime;
 
         transform.position = currentPos + nextPos;
+    }
+    public void Fire() {
+        if (Input.GetButton("Fire1")&& bulletCount < 20 && curBulletDelay > maxBulletDelay) {
+            GameObject bullet = Instantiate(bulletObjA, transform.position, transform.rotation);
+            Rigidbody2D rig = bullet.GetComponent<Rigidbody2D>();
+            rig.AddForce(Vector2.up * 20, ForceMode2D.Impulse);
+            bulletCount++;
+            curBulletDelay = 0;
+        }
+        
+    }
+    public void Reload() {
+        curBulletDelay += Time.deltaTime;
+        if (bulletCount >= 20) {
+            curShotDelay += Time.deltaTime;
+            if (maxShotDelay < curShotDelay) {
+                curShotDelay = 0;
+                bulletCount = 0;
+            }
+        }
     }
     void OnTriggerEnter2D(Collider2D other) {
         if(other.gameObject.tag == "Wall") {

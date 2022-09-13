@@ -64,6 +64,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\Bullet.cs" />
     <Compile Include="Assets\Scripts\PlayerAir.cs" />
     <Reference Include="UnityEngine">
       <HintPath>E:/unity/2019.4.26f1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>
