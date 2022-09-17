@@ -7,9 +7,7 @@ using UnityEngine.UI;
 
 public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable
 {
-    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) {
-        
-    }
+    
 
     public float maxSpeed;
     public float currentSpeed;
@@ -26,6 +24,9 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable
 
 
     public int bulletCount;
+    public int hp;
+    public Text hpText;
+
     public float maxBulletDelay;
     public float curBulletDelay;
     public float maxShotDelay;
@@ -34,6 +35,11 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable
 
     void Awake() {
         nickname.text = photonV.IsMine ? PhotonNetwork.NickName : photonV.Owner.NickName;
+       
+    }
+    void Start() {
+        hp = 5;
+        hpText.text = hp.ToString();
     }
 
     void Update()
@@ -81,6 +87,18 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable
             }
         }
     }
+
+    public void Hit() {
+        hp--;
+        hpText.text = hp.ToString();
+        if(hp <= 0) {
+            photonV.RPC("DestroyRPC", RpcTarget.AllBuffered);
+        }
+    }
+
+    [PunRPC]
+    void DestroyRPC() => Destroy(gameObject);
+
     void OnTriggerEnter2D(Collider2D other) {
         if(other.gameObject.tag == "Wall") {
             switch (other.gameObject.name) {
@@ -118,5 +136,12 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable
         }
     }
 
-    
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) {
+        if (stream.IsWriting) {
+            stream.SendNext(hpText.text);
+        }
+        else {
+            hpText.text = (string)stream.ReceiveNext();
+        }
+    }
 }

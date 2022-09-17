@@ -25,6 +25,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public override void OnJoinedRoom() {
         IDPanel.SetActive(false);
+        StartCoroutine("DestoryBullet");
         Spawn();
     }
 
@@ -32,6 +33,14 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         if(Input.GetKeyDown(KeyCode.Escape) && PhotonNetwork.IsConnected) {
             PhotonNetwork.Disconnect();
         }    
+    }
+
+    IEnumerator DestoryBullet() {
+        yield return new WaitForSeconds(0.2f);
+        foreach (GameObject bullet in GameObject.FindGameObjectsWithTag("Bullet")) {
+            bullet.GetComponent<PhotonView>().RPC("DestoryRPC", RpcTarget.All);
+        }
+        
     }
 
     public void Spawn() {

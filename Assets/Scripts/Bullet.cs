@@ -19,5 +19,14 @@ public class Bullet : MonoBehaviourPunCallbacks {
         if(other.gameObject.tag == "WallBullet") {
             Destroy(gameObject);
         }
+
+        if (!photonV.IsMine && other.tag == "Player" && other.GetComponent<PhotonView>().IsMine) {
+            other.GetComponent<PlayerAir>().Hit();
+            photonV.RPC("DestroyRPC", RpcTarget.AllBuffered);
+        }
+        
     }
+    [PunRPC]
+    void DestroyRPC() => Destroy(gameObject);
+
 }
