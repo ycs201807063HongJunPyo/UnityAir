@@ -8,10 +8,11 @@ using UnityEngine.UI;
 public class NetworkManager : MonoBehaviourPunCallbacks
 {
     public InputField NickNameInput;
-    public GameObject IDPanel;
+    public InputField RoomInput;
+    //public GameObject Panel;
 
     private void Awake() {
-        Screen.SetResolution(960, 540, false);
+        Screen.SetResolution(800, 600, false);
         PhotonNetwork.SendRate = 120;
         PhotonNetwork.SerializationRate = 60;
     }
@@ -20,12 +21,14 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public override void OnConnectedToMaster() {
         PhotonNetwork.LocalPlayer.NickName = NickNameInput.text;
-        PhotonNetwork.JoinOrCreateRoom("Room", new RoomOptions { MaxPlayers = 2 }, null);
+        PhotonNetwork.JoinOrCreateRoom(RoomInput.text, new RoomOptions { MaxPlayers = 2 }, null);
     }
 
     public override void OnJoinedRoom() {
-        IDPanel.SetActive(false);
+        //IDPanel.SetActive(false);
         StartCoroutine("DestoryBullet");
+        RoomData.rInstance.roomName = RoomInput.text;
+        //RoomData.rInstance.UpdateInfo();
         Spawn();
     }
 
@@ -49,6 +52,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     }
 
     public override void OnDisconnected(DisconnectCause cause) {
-        IDPanel.SetActive(true);
+        //IDPanel.SetActive(true);
     }
 }
