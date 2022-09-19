@@ -7,11 +7,14 @@ using UnityEngine.UI;
 
 public class NetworkManager : MonoBehaviourPunCallbacks
 {
+    public static NetworkManager nInstance;
+
     public InputField NickNameInput;
     public InputField RoomInput;
     //public GameObject Panel;
 
     private void Awake() {
+        nInstance = this;
         Screen.SetResolution(800, 600, false);
         PhotonNetwork.SendRate = 120;
         PhotonNetwork.SerializationRate = 60;
@@ -29,7 +32,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         StartCoroutine("DestoryBullet");
         RoomData.rInstance.roomName = RoomInput.text;
         //RoomData.rInstance.UpdateInfo();
-        Spawn();
+        //Spawn();
     }
 
     void Update() {
