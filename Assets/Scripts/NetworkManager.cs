@@ -11,26 +11,39 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public InputField NickNameInput;
     public InputField RoomInput;
-    //public GameObject Panel;
+    RoomOptions roomOp;
+    public GameObject airSelectPanel;
 
     private void Awake() {
         nInstance = this;
-        Screen.SetResolution(800, 600, false);
+        Screen.SetResolution(1080, 1920, false);
         PhotonNetwork.SendRate = 120;
         PhotonNetwork.SerializationRate = 60;
+    }
+
+    public void isRoomStart() {
+        if(roomOp.IsOpen != false) {
+            Connect();
+        }
+        else { 
+        }
     }
 
     public void Connect() => PhotonNetwork.ConnectUsingSettings();
 
     public override void OnConnectedToMaster() {
         PhotonNetwork.LocalPlayer.NickName = NickNameInput.text;
-        PhotonNetwork.JoinOrCreateRoom(RoomInput.text, new RoomOptions { MaxPlayers = 2 }, null);
+        roomOp = new RoomOptions();
+        roomOp.MaxPlayers = 2;
+        roomOp.IsOpen = true;
+        PhotonNetwork.JoinOrCreateRoom(RoomInput.text, roomOp, null);
     }
 
     public override void OnJoinedRoom() {
         //IDPanel.SetActive(false);
         StartCoroutine("DestoryBullet");
         RoomData.rInstance.roomName = RoomInput.text;
+
         //RoomData.rInstance.UpdateInfo();
         //Spawn();
     }
@@ -50,7 +63,9 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     }
 
     public void Spawn() {
+        roomOp.IsOpen = false;
         PhotonNetwork.Instantiate("Prototype_Fighter_03", Vector3.zero, Quaternion.identity);
+        airSelectPanel.SetActive(false);
 
     }
 

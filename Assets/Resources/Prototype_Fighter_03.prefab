@@ -257,8 +257,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bab06f638e4d63b4eb66d5168337c7d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxSpeed: 0
-  currentSpeed: 7
+  airType: 0
+  vSpeed: 0
+  hSpeed: 0
   isWallTop: 0
   isWallRight: 0
   isWallLeft: 0
@@ -270,11 +271,12 @@ MonoBehaviour:
   bulletObjB: {fileID: 7808497490535792506, guid: 8f12f2bc22644334dbddef42f4d01ce0,
     type: 3}
   bulletCount: 0
-  hp: 5
+  maxBulletCount: 0
+  hp: 0
   hpText: {fileID: 8306947694782362974}
-  maxBulletDelay: 0.1
+  maxBulletDelay: 0
   curBulletDelay: 0
-  maxShotDelay: 2
+  maxShotDelay: 0
   curShotDelay: 1
 --- !u!61 &7338750718144047066
 BoxCollider2D:

@@ -7,6 +7,8 @@ public class Bullet : MonoBehaviourPunCallbacks {
 
     public PhotonView photonV;
     int dir;
+    int damage;
+    public GameObject bulletType;
 
     void Update() {
         transform.Translate(Vector3.up * 20 * Time.deltaTime * dir);
