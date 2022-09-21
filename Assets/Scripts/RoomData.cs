@@ -68,7 +68,8 @@ public class RoomData : MonoBehaviourPunCallbacks {
         else {
             roomDataText.text = "";
             NetworkManager.nInstance.Spawn();
-            readyCountText.text = string.Format("게임 시작");
+            
+            readyCountText.text = "";
         }
     }
 }

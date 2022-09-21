@@ -145,6 +145,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   photonV: {fileID: 3713763459142822333}
+  damage: 3
+  bulletHitCount: 1
+  bulletType: {fileID: 0}
 --- !u!114 &3713763459142822333
 MonoBehaviour:
   m_ObjectHideFlags: 0
