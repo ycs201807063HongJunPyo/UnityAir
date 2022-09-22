@@ -1,11 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
+using Photon.Realtime;
 
-public class Enemy : MonoBehaviour
-{
+public class Enemy : MonoBehaviourPunCallbacks {
     public float speed;
     public int enemyHp;
+
+    public PhotonView photonV;
 
     SpriteRenderer spriteRenderer;
     Rigidbody2D rigid;
@@ -37,5 +40,12 @@ public class Enemy : MonoBehaviour
             Bullet bullet = collision.gameObject.GetComponent<Bullet>();
             OnHit(bullet.damage);
         }
+        else if (collision.tag == "Player") {
+            collision.GetComponent<PlayerAir>().Hit();
+            photonV.RPC("DestroyRPC", RpcTarget.AllBuffered);
+        }
     }
+
+    [PunRPC]
+    void DestroyRPC() => Destroy(gameObject);
 }

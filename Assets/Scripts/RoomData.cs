@@ -13,9 +13,9 @@ public class RoomData : MonoBehaviourPunCallbacks {
     public int playerCount = 0;
     public int maxCount = 2;
 
-    public bool test = false;
+    public bool switchBool = false;
 
-    private int readyCount = 10;
+    private int readyCount = 5;
     public static int airforceCount = 0;
 
     [SerializeField]
@@ -52,9 +52,9 @@ public class RoomData : MonoBehaviourPunCallbacks {
 
     void Update(){
         UpdateInfo();
-        if (PhotonNetwork.PlayerList.Length == maxCount && test == false) {
+        if (PhotonNetwork.PlayerList.Length == maxCount && switchBool == false) {
             StartCoroutine("GameReadyTimer", 1);
-            test = true;
+            switchBool = true;
         }
     }
 
@@ -68,7 +68,7 @@ public class RoomData : MonoBehaviourPunCallbacks {
         else {
             roomDataText.text = "";
             NetworkManager.nInstance.Spawn();
-            
+            GameManager.gmInstance.gameStart = true;
             readyCountText.text = "";
         }
     }

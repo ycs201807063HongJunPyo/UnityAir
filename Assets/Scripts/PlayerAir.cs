@@ -45,7 +45,8 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable
        
     }
     void Start() {
-        if(RoomData.airforceCount == 0) {
+
+        if (RoomData.airforceCount == 0) {
             airType = EAirType.LightFighter;
             hp = 7;
             vSpeed = 3f;
@@ -63,6 +64,7 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable
             maxBulletDelay = 0.6f;
             maxShotDelay = 7f;
         }
+
         hpText.text = hp.ToString();
     }
 
