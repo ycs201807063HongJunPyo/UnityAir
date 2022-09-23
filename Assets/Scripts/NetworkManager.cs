@@ -66,7 +66,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         roomOp.IsOpen = false;
         PhotonNetwork.Instantiate("Prototype_Fighter_03", Vector3.zero, Quaternion.identity);
         airSelectPanel.SetActive(false);
-
     }
 
     public override void OnDisconnected(DisconnectCause cause) {

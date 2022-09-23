@@ -172,7 +172,7 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable
             stream.SendNext(hpText.text);
         }
         else {
-            hpText.text = (string)stream.ReceiveNext();
+            this.hpText.text = (string)stream.ReceiveNext();
         }
     }
 }

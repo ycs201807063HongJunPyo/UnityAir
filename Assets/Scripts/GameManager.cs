@@ -4,9 +4,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using Photon.Pun;
 
-public class GameManager : MonoBehaviourPun
-{
+public class GameManager : MonoBehaviourPun, IPunObservable {
     public static GameManager gmInstance;
+    public GameObject statSelectPanel;
 
     [SerializeField]
     private Text gameWaitText;
@@ -57,8 +57,9 @@ public class GameManager : MonoBehaviourPun
             gameMaxUnit--;
         }
     }
-
     void WaitTime() {
+        statSelectPanel.SetActive(true);
+        PlayerStat.psInstance.OpenStat();
         StartCoroutine("GameWaitTimer", 1);
     }
 
@@ -75,6 +76,17 @@ public class GameManager : MonoBehaviourPun
             gameStage++;
             gameWaitText.text = "";
             switchBool = false;
+        }
+    }
+
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) {
+        if (stream.IsWriting) {
+            stream.SendNext(gameStage);
+            stream.SendNext(gameWaitText.text);
+        }
+        else {
+            this.gameStage = (int)stream.ReceiveNext();
+            this.gameWaitText.text = (string)stream.ReceiveNext();
         }
     }
 }
