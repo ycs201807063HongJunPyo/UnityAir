@@ -24,7 +24,7 @@ public class Enemy : MonoBehaviourPunCallbacks {
         Invoke("ReturnSprite", 0.1f);
         enemyHp -= damage;
         if(enemyHp <= 0) {
-            Destroy(gameObject);
+            photonV.RPC("DestroyRPC", RpcTarget.AllBuffered);
         }
     }
 
@@ -34,9 +34,9 @@ public class Enemy : MonoBehaviourPunCallbacks {
 
     void OnTriggerEnter2D(Collider2D collision) {
         if(collision.gameObject.tag == "WallBullet") {
-            Destroy(gameObject);
+            photonV.RPC("DestroyRPC", RpcTarget.AllBuffered);
         }
-        else if (collision.gameObject.tag == "Bullet") {
+        else if (collision.gameObject.tag == "Bullet" ) {
             Bullet bullet = collision.gameObject.GetComponent<Bullet>();
             OnHit(bullet.damage);
         }

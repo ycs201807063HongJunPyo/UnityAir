@@ -12,7 +12,6 @@ public enum EAirType {
 
 public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable
 {
-
     public EAirType airType;
 
     public float vSpeed; //상하
@@ -146,6 +145,11 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable
                     isWallBottom = true;
                     break;
             }
+        }
+        if(other.gameObject.tag == "StatPoint") {
+            GameObject.Find("Canvas").transform.Find("Unit Stat Panel").gameObject.SetActive(true);
+            GameObject.Find("Canvas").transform.Find("Unit Stat Panel").gameObject.GetComponent<PlayerStat>().OpenStat();
+            Destroy(other.gameObject);
         }
     }
     void OnTriggerExit2D(Collider2D other) {

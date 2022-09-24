@@ -6,7 +6,6 @@ using Photon.Pun;
 
 public class GameManager : MonoBehaviourPun, IPunObservable {
     public static GameManager gmInstance;
-    public GameObject statSelectPanel;
 
     [SerializeField]
     private Text gameWaitText;
@@ -24,9 +23,14 @@ public class GameManager : MonoBehaviourPun, IPunObservable {
 
     public int gameStage;
     public int gameMaxUnit;
+
+
     void Awake() {
         gmInstance = this;
-        gameMaxUnit = 10;
+        gameMaxUnit = 5;
+    }
+    void Start() {
+        gameStage = 1;
     }
 
     void Update() {
@@ -42,29 +46,33 @@ public class GameManager : MonoBehaviourPun, IPunObservable {
             }
         }
         else if(gameStart == true && gameMaxUnit <= 0) {
+            
             if (switchBool == false) {
+                if (PhotonNetwork.IsMasterClient) {
+                    PhotonNetwork.Instantiate("StatPoint", Vector3.zero, Quaternion.identity);
+                }
+                gameStage++;
                 WaitTime();
                 switchBool = true;
             }
         }
+        
     }
+    //statSelectPanel.SetActive(true);
+    //PlayerStat.psInstance.OpenStat();
 
     void SpawnEnemy() {
-        if (gameMaxUnit > 0) {
-            int ranEnemy = Random.Range(0, 3);
-            int ranPoint = Random.Range(0, 5);
-            PhotonNetwork.Instantiate(enemyObjs[ranEnemy].name, spawnPoints[ranPoint].position, spawnPoints[ranPoint].rotation);
-            gameMaxUnit--;
-        }
+        int ranEnemy = Random.Range(0, 3);
+        int ranPoint = Random.Range(0, 5);
+        PhotonNetwork.Instantiate(enemyObjs[ranEnemy].name, spawnPoints[ranPoint].position, spawnPoints[ranPoint].rotation);
+        gameMaxUnit--;
     }
     void WaitTime() {
-        statSelectPanel.SetActive(true);
-        PlayerStat.psInstance.OpenStat();
         StartCoroutine("GameWaitTimer", 1);
     }
 
     IEnumerator GameWaitTimer(float delayTime) {
-        gameWaitText.text = string.Format("{0}초 후 게임이 시작됩니다.", waitCount);
+        gameWaitText.text = string.Format("{0}초 후 게임이 시작됩니다.\n{1}스테이지 준비중", waitCount, gameStage);
         yield return new WaitForSeconds(delayTime);
         waitCount--;
         if (waitCount >= 0) {
@@ -72,8 +80,8 @@ public class GameManager : MonoBehaviourPun, IPunObservable {
         }
         else {
             waitCount = 15;
-            gameMaxUnit = 10;
-            gameStage++;
+            gameMaxUnit =5;
+            
             gameWaitText.text = "";
             switchBool = false;
         }

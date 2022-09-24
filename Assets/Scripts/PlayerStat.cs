@@ -36,7 +36,9 @@ public class PlayerStat : MonoBehaviourPunCallbacks {
 
     }
     public void OpenStat() {
+        //statSelectPanel.SetActive(true);
         statRandom = Random.Range(0, 6);
+
         if(statRandom == 0) {
             firstText.text = "추가 장갑 : 최대 체력이 1,2,3,4,6증가합니다.";
             secondText.text = "화력 유지 : 차탄 장전까지 5,10,15,20,30% 빨라집니다.";

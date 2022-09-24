@@ -21,7 +21,7 @@ public class Bullet : MonoBehaviourPunCallbacks {
     void OnTriggerEnter2D(Collider2D other) {
         
         if (other.gameObject.tag == "WallBullet") {
-            Destroy(gameObject);
+            photonV.RPC("DestroyRPC", RpcTarget.AllBuffered);
         }
 
         if (!photonV.IsMine && other.tag == "Player" && other.GetComponent<PhotonView>().IsMine) {
@@ -33,7 +33,7 @@ public class Bullet : MonoBehaviourPunCallbacks {
         }
         
         if (bulletHitCount <= 0) {
-            Destroy(gameObject);
+            photonV.RPC("DestroyRPC", RpcTarget.AllBuffered);
         }
     }
     [PunRPC]

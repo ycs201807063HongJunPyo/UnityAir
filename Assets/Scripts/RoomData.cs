@@ -15,7 +15,7 @@ public class RoomData : MonoBehaviourPunCallbacks {
 
     public bool switchBool = false;
 
-    private int readyCount = 5;
+    private int readyCount = 3;
     public static int airforceCount = 0;
 
     [SerializeField]

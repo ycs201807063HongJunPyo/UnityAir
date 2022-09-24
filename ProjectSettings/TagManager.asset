@@ -8,6 +8,7 @@ TagManager:
   - WallBullet
   - Bullet
   - Enemy
+  - StatPoint
   layers:
   - Default
   - TransparentFX
