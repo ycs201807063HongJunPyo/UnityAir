@@ -14,12 +14,16 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable
 {
     public EAirType airType;
 
+
     public float vSpeed; //상하
     public float hSpeed; //좌우
+
     public bool isWallTop;
     public bool isWallRight;
     public bool isWallLeft;
     public bool isWallBottom;
+
+    private bool statCheck;
 
     public PhotonView photonV;
     public Text nickname;
@@ -30,13 +34,16 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable
 
     public int bulletCount;
     public int maxBulletCount;
+    public int maxHp;
     public int hp;
     public Text hpText;
+    public int apAmmo;
 
     public float maxBulletDelay;//차탄 장전 시간
     public float curBulletDelay;//차탄 장전 속도
     public float maxShotDelay;//재장전 시간
     public float curShotDelay;//재장전 속도
+    
     // Update is called once per frame
 
     void Awake() {
@@ -47,7 +54,8 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable
 
         if (RoomData.airforceCount == 0) {
             airType = EAirType.LightFighter;
-            hp = 7;
+            maxHp = 7;
+            hp = maxHp;
             vSpeed = 3f;
             hSpeed = 3f;
             maxBulletCount = 250;
@@ -56,14 +64,16 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable
         }
         else if (RoomData.airforceCount == 1) {
             airType = EAirType.JetFighter;
-            hp = 5;
+            maxHp = 5;
+            hp = maxHp;
             vSpeed = 5f;
             hSpeed = 2f;
             maxBulletCount = 20;
             maxBulletDelay = 0.6f;
             maxShotDelay = 7f;
         }
-
+        apAmmo = 0;
+        statCheck = false;
         hpText.text = hp.ToString();
     }
 
@@ -72,6 +82,10 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable
         Move();
         Fire();
         Reload();
+        if (photonV.IsMine && statCheck == false) {
+            GameObject.Find("Canvas").transform.Find("Unit Stat Panel").transform.Find("FirstStatButton").GetComponent<Button>().onClick.AddListener(() => this.OnClickButtonFirst(statCheck));
+            GameObject.Find("Canvas").transform.Find("Unit Stat Panel").transform.Find("SecondStatButton").GetComponent<Button>().onClick.AddListener(() => this.OnClickButtonSecond(statCheck));
+        }
     }
     void Move() {
         if (photonV.IsMine) {
@@ -93,12 +107,34 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable
     public void Fire() {
         if (Input.GetButton("Fire1")&& bulletCount < maxBulletCount && curBulletDelay > maxBulletDelay && photonV.IsMine) {
             if (airType == EAirType.LightFighter) {
-                PhotonNetwork.Instantiate("PlayerBullet A", transform.position+Vector3.right*0.2f, transform.rotation).GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, 1);
-                PhotonNetwork.Instantiate("PlayerBullet A", transform.position + Vector3.left * 0.2f, transform.rotation).GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, 1);
+                bulletObjA = PhotonNetwork.Instantiate("PlayerBullet A", transform.position + Vector3.right * 0.2f, transform.rotation);
+                bulletObjA.GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, 1);
+                if(apAmmo >= 1) {
+                    bulletObjA.GetComponent<Bullet>().damage--;
+                    bulletObjA.GetComponent<Bullet>().bulletHitCount += apAmmo;
+                }
+                bulletObjA = PhotonNetwork.Instantiate("PlayerBullet A", transform.position + Vector3.left * 0.2f, transform.rotation);
+                bulletObjA.GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, 1);
+                if (apAmmo >= 1) {
+                    bulletObjA.GetComponent<Bullet>().damage--;
+                    bulletObjA.GetComponent<Bullet>().bulletHitCount += apAmmo;
+                    Debug.Log(bulletObjA.GetComponent<Bullet>().bulletHitCount);
+                }
             }
             else if (airType == EAirType.JetFighter) {
-                PhotonNetwork.Instantiate("PlayerBullet B", transform.position + Vector3.right * 0.25f, transform.rotation).GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, 1);
-                PhotonNetwork.Instantiate("PlayerBullet B", transform.position + Vector3.left * 0.25f, transform.rotation).GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, 1);
+                bulletObjB = PhotonNetwork.Instantiate("PlayerBullet B", transform.position + Vector3.right * 0.25f, transform.rotation);
+                bulletObjB.GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, 1);
+                if (apAmmo >= 1) {
+                    bulletObjB.GetComponent<Bullet>().damage--;
+                    bulletObjB.GetComponent<Bullet>().bulletHitCount += apAmmo;
+                }
+                bulletObjB = PhotonNetwork.Instantiate("PlayerBullet B", transform.position + Vector3.left * 0.25f, transform.rotation);
+                bulletObjB.GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, 1);
+                if (apAmmo >= 1) {
+                    bulletObjB.GetComponent<Bullet>().damage--;
+                    bulletObjB.GetComponent<Bullet>().bulletHitCount += apAmmo;
+                    Debug.Log(bulletObjA.GetComponent<Bullet>().bulletHitCount);
+                }
             }
             bulletCount++;
             curBulletDelay = 0;
@@ -171,6 +207,77 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable
         }
     }
 
+    public void OnClickButtonFirst(bool isCheck) {
+        if (isCheck == false) {
+            statCheck = true;
+            isCheck = true;
+            int select = PlayerStat.psInstance.statRandom;
+            if (select == 0) {
+                maxHp += 5;
+                hp += 5;
+                Debug.Log("선택값 " + hp);
+            }
+            else if (select == 1) {
+                maxShotDelay *= 0.9f;
+                Debug.Log("선택값 " + maxShotDelay);
+            }
+            else if (select == 2) {
+                vSpeed *= 1.1f;
+                Debug.Log("선택값 " + vSpeed);
+            }
+            else if (select == 3) {
+                maxHp += 5;
+                hp += 5;
+                Debug.Log("선택값 " + hp);
+            }
+            else if (select == 4) {
+                vSpeed *= 1.1f;
+                Debug.Log("선택값 " + vSpeed);
+            }
+            else if (select == 5) {
+                maxBulletDelay *= 0.85f;
+                Debug.Log("선택값 " + maxBulletDelay);
+            }
+            hpText.text = hp.ToString();
+            GameObject.Find("Canvas").transform.Find("Unit Stat Panel").gameObject.SetActive(false);
+        }
+    }
+
+    public void OnClickButtonSecond(bool isCheck) {
+        if (isCheck == false) {
+            statCheck = true;
+            isCheck = true;
+            int select = PlayerStat.psInstance.statRandom;
+            if (select == 0) {
+                maxBulletDelay *= 0.85f;
+                Debug.Log("선택값 " + maxBulletDelay);
+            }
+            else if (select == 1) {
+                hSpeed *= 1.15f;
+                Debug.Log("선택값 " + hSpeed);
+            }
+            else if (select == 2) {
+                apAmmo++;
+            }
+            else if (select == 3) {
+                apAmmo++;
+            }
+            else if (select == 4) {
+                hSpeed *= 1.15f;
+                Debug.Log("선택값 " + hSpeed);
+            }
+            else if (select == 5) {
+                maxShotDelay *= 0.9f;
+                Debug.Log("선택값 " + maxShotDelay);
+            }
+            hpText.text = hp.ToString();
+            GameObject.Find("Canvas").transform.Find("Unit Stat Panel").gameObject.SetActive(false);
+        }
+    }
+
+    public void OnSelectButton() {
+        
+    }
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) {
         if (stream.IsWriting) {
             stream.SendNext(hpText.text);

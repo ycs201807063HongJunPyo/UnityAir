@@ -27,7 +27,7 @@ public class GameManager : MonoBehaviourPun, IPunObservable {
 
     void Awake() {
         gmInstance = this;
-        gameMaxUnit = 5;
+        gameMaxUnit = 1;
     }
     void Start() {
         gameStage = 1;
@@ -79,8 +79,8 @@ public class GameManager : MonoBehaviourPun, IPunObservable {
             StartCoroutine("GameWaitTimer", 1);
         }
         else {
-            waitCount = 15;
-            gameMaxUnit =5;
+            waitCount = 10;
+            gameMaxUnit += 2;
             
             gameWaitText.text = "";
             switchBool = false;

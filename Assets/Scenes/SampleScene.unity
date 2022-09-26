@@ -3312,7 +3312,7 @@ GameObject:
   - component: {fileID: 1132813613}
   - component: {fileID: 1132813612}
   m_Layer: 5
-  m_Name: First Stat Button
+  m_Name: FirstStatButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3382,9 +3382,10 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 720099102}
-        m_MethodName: SetActive
-        m_Mode: 6
+      - m_Target: {fileID: 7338750718144047069, guid: 6dac931f56ed2254db8e3bc027872921,
+          type: 3}
+        m_MethodName: OnSelectButton
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -4015,7 +4016,7 @@ GameObject:
   - component: {fileID: 1840934045}
   - component: {fileID: 1840934044}
   m_Layer: 5
-  m_Name: Second Stat Button
+  m_Name: SecondStatButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4085,9 +4086,10 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 720099102}
-        m_MethodName: SetActive
-        m_Mode: 6
+      - m_Target: {fileID: 7338750718144047069, guid: 6dac931f56ed2254db8e3bc027872921,
+          type: 3}
+        m_MethodName: OnSelectButton
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
