@@ -9,32 +9,38 @@ public class GameManager : MonoBehaviourPun, IPunObservable {
 
     [SerializeField]
     private Text gameWaitText;
-    private int waitCount = 15;
+    private int waitCount = 10;
 
     public GameObject[] enemyObjs;
     public Transform[] spawnPoints;
 
     public bool gameStart;
     public bool gameWait;
-    public bool switchBool = false;
+    public bool switchBool;
 
     public float maxDelay;
     public float curDelay;
 
     public int gameStage;
+    public int gameCurUnit;
     public int gameMaxUnit;
+
+    public int gameDeadUnit;
 
 
     void Awake() {
         gmInstance = this;
-        gameMaxUnit = 1;
     }
     void Start() {
+        gameMaxUnit = 5;
+        gameCurUnit = gameMaxUnit;
+        gameDeadUnit = 0;
+        switchBool = false;
         gameStage = 1;
     }
 
     void Update() {
-        if (gameStart == true && gameMaxUnit > 0) {
+        if (gameStart == true && gameCurUnit > 0) {
             if (!PhotonNetwork.IsMasterClient) {
                 return;
             }
@@ -45,16 +51,12 @@ public class GameManager : MonoBehaviourPun, IPunObservable {
                 curDelay = 0;
             }
         }
-        else if(gameStart == true && gameMaxUnit <= 0) {
-            
+        else if(gameStart == true && gameCurUnit <= 0) {
             if (switchBool == false) {
-                if (PhotonNetwork.IsMasterClient) {
-                    PhotonNetwork.Instantiate("StatPoint", Vector3.zero, Quaternion.identity);
-                }
-                gameStage++;
-                WaitTime();
+                StartCoroutine("StageWaitTimer");
                 switchBool = true;
             }
+            
         }
         
     }
@@ -62,31 +64,53 @@ public class GameManager : MonoBehaviourPun, IPunObservable {
     //PlayerStat.psInstance.OpenStat();
 
     void SpawnEnemy() {
-        int ranEnemy = Random.Range(0, 3);
+        int ranEnemy;
+        if (gameStage <= 3) {
+
+            ranEnemy = Random.Range(0, 1);
+        }
+        else if (gameStage <= 8) {
+            ranEnemy = Random.Range(0, 2);
+        }
+        else {
+            ranEnemy = Random.Range(0, 3);
+        }
         int ranPoint = Random.Range(0, 5);
         PhotonNetwork.Instantiate(enemyObjs[ranEnemy].name, spawnPoints[ranPoint].position, spawnPoints[ranPoint].rotation);
-        gameMaxUnit--;
+        gameCurUnit--;
     }
     void WaitTime() {
         StartCoroutine("GameWaitTimer", 1);
     }
 
     IEnumerator GameWaitTimer(float delayTime) {
+        
         gameWaitText.text = string.Format("{0}초 후 게임이 시작됩니다.\n{1}스테이지 준비중", waitCount, gameStage);
         yield return new WaitForSeconds(delayTime);
+
         waitCount--;
         if (waitCount >= 0) {
             StartCoroutine("GameWaitTimer", 1);
         }
         else {
-            waitCount = 10;
-            gameMaxUnit += 2;
-            
+            waitCount = 7;
+            gameMaxUnit += 5;
+            gameCurUnit = gameMaxUnit;
             gameWaitText.text = "";
             switchBool = false;
         }
     }
 
+    
+    IEnumerator StageWaitTimer() {
+        yield return new WaitForSeconds(3.0f);
+        if (PhotonNetwork.IsMasterClient) {
+            PhotonNetwork.Instantiate("StatPoint", Vector3.zero, Quaternion.identity);
+        }
+        gameStage++;
+        WaitTime();
+    }
+    
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) {
         if (stream.IsWriting) {
             stream.SendNext(gameStage);

@@ -144,8 +144,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e5b49c1b4f46f2f4490535f1e8aaa472, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 1
-  enemyHp: 20
+  speed: 1.5
+  enemyHp: 35
   photonV: {fileID: 966191983016389156}
 --- !u!114 &966191983016389156
 MonoBehaviour:

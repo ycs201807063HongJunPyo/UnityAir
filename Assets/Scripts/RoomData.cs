@@ -30,8 +30,9 @@ public class RoomData : MonoBehaviourPunCallbacks {
     void Awake() {
         airforceCount = 0;
         rInstance = this;
-        roomDataText = GetComponentInChildren<Text>();
+        //roomDataText = GetComponentInChildren<Text>();
         airForceStatText.text = string.Format("무기 : 기관총x2(250발)\n체력 : 7\n이동속도 : 3/3");
+        airForceText.text = string.Format("기본적인 전투기로 모든 상황에 적절히 대응합니다.");
     }
     public void UpdateInfo() {
         roomDataText.text = string.Format("Room Name : {0} [{1} / {2}]", roomName, PhotonNetwork.PlayerList.Length, maxCount);
@@ -44,9 +45,11 @@ public class RoomData : MonoBehaviourPunCallbacks {
         }
         if(airforceCount == 0) {
             airForceStatText.text = string.Format("무기 : 기관총x2(250발)\n체력 : 7\n이동속도 : 3/3");
+            airForceText.text = string.Format("기본적인 전투기로 모든 상황에 적절히 대응합니다.");
         }
         else if(airforceCount == 1) {
             airForceStatText.text = string.Format("무기 : 기관포x2(20발)\n체력 : 5\n이동속도 : 5/2");
+            airForceText.text = string.Format("강한 화력과 높은 이동능력을 가졌지만 적은 탄창과 낮은 체력, 느린 좌우 이동을 커버할 컨트롤이 필요합니다.\n\n관통탄 : 적을 1회 관통합니다.");
         }
     }
 

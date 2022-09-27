@@ -10,8 +10,7 @@ public enum EAirType {
     JetFighter
 }
 
-public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable
-{
+public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable {
     public EAirType airType;
 
 
@@ -23,7 +22,7 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable
     public bool isWallLeft;
     public bool isWallBottom;
 
-    private bool statCheck;
+    public bool statCheck;
 
     public PhotonView photonV;
     public Text nickname;
@@ -43,12 +42,12 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable
     public float curBulletDelay;//차탄 장전 속도
     public float maxShotDelay;//재장전 시간
     public float curShotDelay;//재장전 속도
-    
+
     // Update is called once per frame
 
     void Awake() {
         nickname.text = photonV.IsMine ? PhotonNetwork.NickName : photonV.Owner.NickName;
-       
+
     }
     void Start() {
 
@@ -77,8 +76,7 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable
         hpText.text = hp.ToString();
     }
 
-    void Update()
-    {
+    void Update() {
         Move();
         Fire();
         Reload();
@@ -98,48 +96,26 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable
                 v = 0;
             }
             Vector3 currentPos = transform.position;
-            Vector3 nextPos = new Vector3(h*hSpeed, v*vSpeed, 0) * Time.deltaTime;
+            Vector3 nextPos = new Vector3(h * hSpeed, v * vSpeed, 0) * Time.deltaTime;
 
             transform.position = currentPos + nextPos;
         }
     }
 
     public void Fire() {
-        if (Input.GetButton("Fire1")&& bulletCount < maxBulletCount && curBulletDelay > maxBulletDelay && photonV.IsMine) {
+        if (Input.GetButton("Fire1") && bulletCount < maxBulletCount && curBulletDelay > maxBulletDelay && photonV.IsMine) {
             if (airType == EAirType.LightFighter) {
-                bulletObjA = PhotonNetwork.Instantiate("PlayerBullet A", transform.position + Vector3.right * 0.2f, transform.rotation);
-                bulletObjA.GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, 1);
-                if(apAmmo >= 1) {
-                    bulletObjA.GetComponent<Bullet>().damage--;
-                    bulletObjA.GetComponent<Bullet>().bulletHitCount += apAmmo;
-                }
-                bulletObjA = PhotonNetwork.Instantiate("PlayerBullet A", transform.position + Vector3.left * 0.2f, transform.rotation);
-                bulletObjA.GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, 1);
-                if (apAmmo >= 1) {
-                    bulletObjA.GetComponent<Bullet>().damage--;
-                    bulletObjA.GetComponent<Bullet>().bulletHitCount += apAmmo;
-                    Debug.Log(bulletObjA.GetComponent<Bullet>().bulletHitCount);
-                }
+                PhotonNetwork.Instantiate("PlayerBullet A", transform.position + Vector3.right * 0.2f, transform.rotation).GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, 1);
+                PhotonNetwork.Instantiate("PlayerBullet A", transform.position + Vector3.left * 0.2f, transform.rotation).GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, 1);
             }
             else if (airType == EAirType.JetFighter) {
-                bulletObjB = PhotonNetwork.Instantiate("PlayerBullet B", transform.position + Vector3.right * 0.25f, transform.rotation);
-                bulletObjB.GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, 1);
-                if (apAmmo >= 1) {
-                    bulletObjB.GetComponent<Bullet>().damage--;
-                    bulletObjB.GetComponent<Bullet>().bulletHitCount += apAmmo;
-                }
-                bulletObjB = PhotonNetwork.Instantiate("PlayerBullet B", transform.position + Vector3.left * 0.25f, transform.rotation);
-                bulletObjB.GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, 1);
-                if (apAmmo >= 1) {
-                    bulletObjB.GetComponent<Bullet>().damage--;
-                    bulletObjB.GetComponent<Bullet>().bulletHitCount += apAmmo;
-                    Debug.Log(bulletObjA.GetComponent<Bullet>().bulletHitCount);
-                }
+                PhotonNetwork.Instantiate("PlayerBullet B", transform.position + Vector3.right * 0.25f, transform.rotation).GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, 1);
+                PhotonNetwork.Instantiate("PlayerBullet B", transform.position + Vector3.left * 0.25f, transform.rotation).GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, 1);
             }
             bulletCount++;
             curBulletDelay = 0;
         }
-        
+
     }
     public void Reload() {
         if (photonV.IsMine) {
@@ -157,7 +133,7 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable
     public void Hit() {
         hp--;
         hpText.text = hp.ToString();
-        if(hp <= 0) {
+        if (hp <= 0) {
             photonV.RPC("DestroyRPC", RpcTarget.AllBuffered);
         }
     }
@@ -166,7 +142,7 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable
     void DestroyRPC() => Destroy(gameObject);
 
     void OnTriggerEnter2D(Collider2D other) {
-        if(other.gameObject.tag == "Wall") {
+        if (other.gameObject.tag == "Wall") {
             switch (other.gameObject.name) {
                 case "top":
                     isWallTop = true;
@@ -182,10 +158,11 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable
                     break;
             }
         }
-        if(other.gameObject.tag == "StatPoint") {
+        if (other.gameObject.tag == "StatPoint") {
             GameObject.Find("Canvas").transform.Find("Unit Stat Panel").gameObject.SetActive(true);
             GameObject.Find("Canvas").transform.Find("Unit Stat Panel").gameObject.GetComponent<PlayerStat>().OpenStat();
             Destroy(other.gameObject);
+            photonV.RPC("StatRPC", RpcTarget.All);
         }
     }
     void OnTriggerExit2D(Collider2D other) {
@@ -213,8 +190,8 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable
             isCheck = true;
             int select = PlayerStat.psInstance.statRandom;
             if (select == 0) {
-                maxHp += 5;
-                hp += 5;
+                maxHp += 1;
+                hp += 1;
                 Debug.Log("선택값 " + hp);
             }
             else if (select == 1) {
@@ -226,8 +203,8 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable
                 Debug.Log("선택값 " + vSpeed);
             }
             else if (select == 3) {
-                maxHp += 5;
-                hp += 5;
+                maxHp += 1;
+                hp += 1;
                 Debug.Log("선택값 " + hp);
             }
             else if (select == 4) {
@@ -257,10 +234,20 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable
                 Debug.Log("선택값 " + hSpeed);
             }
             else if (select == 2) {
-                apAmmo++;
+                if (airType == EAirType.LightFighter) {
+                    maxBulletCount += 15;
+                }
+                else if(airType == EAirType.JetFighter) {
+                    maxBulletCount += 2;
+                }
             }
             else if (select == 3) {
-                apAmmo++;
+                if (airType == EAirType.LightFighter) {
+                    maxBulletCount += 15;
+                }
+                else if (airType == EAirType.JetFighter) {
+                    maxBulletCount += 2;
+                }
             }
             else if (select == 4) {
                 hSpeed *= 1.15f;
@@ -275,15 +262,16 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable
         }
     }
 
-    public void OnSelectButton() {
-        
+    [PunRPC]
+    public void StatRPC() {
+        statCheck = false;
     }
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) {
         if (stream.IsWriting) {
-            stream.SendNext(hpText.text);
+            //stream.SendNext(hpText.text);
         }
         else {
-            this.hpText.text = (string)stream.ReceiveNext();
+            //this.hpText.text = (string)stream.ReceiveNext();
         }
     }
 }
