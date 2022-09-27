@@ -23,6 +23,7 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable {
     public bool isWallBottom;
 
     public bool statCheck;
+    public bool isReload;
 
     public PhotonView photonV;
     public Text nickname;
@@ -73,6 +74,7 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable {
         }
         apAmmo = 0;
         statCheck = false;
+        isReload = false;
         hpText.text = hp.ToString();
     }
 
@@ -84,6 +86,8 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable {
             GameObject.Find("Canvas").transform.Find("Unit Stat Panel").transform.Find("FirstStatButton").GetComponent<Button>().onClick.AddListener(() => this.OnClickButtonFirst(statCheck));
             GameObject.Find("Canvas").transform.Find("Unit Stat Panel").transform.Find("SecondStatButton").GetComponent<Button>().onClick.AddListener(() => this.OnClickButtonSecond(statCheck));
         }
+        if (photonV.IsMine && isReload == false)
+            GameObject.Find("Canvas").transform.Find("Main Image").transform.Find("GameUI").transform.Find("ReloadButton").GetComponent<Button>().onClick.AddListener(() => this.OnClickButtonReload());
     }
     void Move() {
         if (photonV.IsMine) {
@@ -121,8 +125,10 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable {
         if (photonV.IsMine) {
             curBulletDelay += Time.deltaTime;
             if (bulletCount >= maxBulletCount) {
+                isReload = true;
                 curShotDelay += Time.deltaTime;
                 if (maxShotDelay < curShotDelay) {
+                    isReload = false;
                     curShotDelay = 0;
                     bulletCount = 0;
                 }
@@ -261,17 +267,22 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable {
             GameObject.Find("Canvas").transform.Find("Unit Stat Panel").gameObject.SetActive(false);
         }
     }
-
+    public void OnClickButtonReload() {
+        if (isReload == false) {
+            isReload = true;
+            bulletCount = maxBulletCount;
+        }
+    }
     [PunRPC]
     public void StatRPC() {
         statCheck = false;
     }
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) {
         if (stream.IsWriting) {
-            //stream.SendNext(hpText.text);
+            stream.SendNext(hpText.text);
         }
         else {
-            //this.hpText.text = (string)stream.ReceiveNext();
+            this.hpText.text = (string)stream.ReceiveNext();
         }
     }
 }

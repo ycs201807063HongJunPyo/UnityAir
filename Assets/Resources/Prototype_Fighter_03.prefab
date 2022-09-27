@@ -265,6 +265,7 @@ MonoBehaviour:
   isWallLeft: 0
   isWallBottom: 0
   statCheck: 0
+  isReload: 1
   photonV: {fileID: 4135584090642401372}
   nickname: {fileID: 2401783299565249978}
   bulletObjA: {fileID: 2163914630945483347, guid: 7e77768b24688cc4c9f9987b06867a52,
