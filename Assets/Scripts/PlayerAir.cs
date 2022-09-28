@@ -31,14 +31,21 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable {
     public GameObject bulletObjA;
     public GameObject bulletObjB;
 
-
-    public int bulletCount;
-    public int maxBulletCount;
+    //체력 관련
     public int maxHp;
     public int hp;
     public Text hpText;
-    public int apAmmo;
 
+    //스킬 관련
+    public int skillTimer;
+    public int maxSkillTimer;
+    public Text skillText;
+    public bool isSkill;//스킬 버튼 눌렀는지 확인
+    public bool skillING;//스킬 사용중
+
+    //총알 관련
+    public int bulletCount;
+    public int maxBulletCount;
     public float maxBulletDelay;//차탄 장전 시간
     public float curBulletDelay;//차탄 장전 속도
     public float maxShotDelay;//재장전 시간
@@ -61,6 +68,7 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable {
             maxBulletCount = 250;
             maxBulletDelay = 0.15f;
             maxShotDelay = 3f;
+            maxSkillTimer = 40;
         }
         else if (RoomData.airforceCount == 1) {
             airType = EAirType.JetFighter;
@@ -71,10 +79,14 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable {
             maxBulletCount = 20;
             maxBulletDelay = 0.6f;
             maxShotDelay = 7f;
+            maxSkillTimer = 60;
         }
-        apAmmo = 0;
+        skillTimer = maxSkillTimer;
         statCheck = false;
         isReload = false;
+        isSkill = false;
+        skillText = GameObject.Find("Canvas").transform.Find("Main Image").transform.Find("SkillText").GetComponent<Text>();
+        StartCoroutine("SkillTimer", 1);
         hpText.text = hp.ToString();
     }
 
@@ -88,6 +100,8 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable {
         }
         if (photonV.IsMine && isReload == false)
             GameObject.Find("Canvas").transform.Find("Main Image").transform.Find("GameUI").transform.Find("ReloadButton").GetComponent<Button>().onClick.AddListener(() => this.OnClickButtonReload());
+        if (photonV.IsMine && isSkill == true)
+            GameObject.Find("Canvas").transform.Find("Main Image").transform.Find("GameUI").transform.Find("SkillButton").GetComponent<Button>().onClick.AddListener(() => this.OnClickButtonSkill());
     }
     void Move() {
         if (photonV.IsMine) {
@@ -123,9 +137,15 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable {
     }
     public void Reload() {
         if (photonV.IsMine) {
+            if (skillING && airType == EAirType.JetFighter) {
+                curBulletDelay += Time.deltaTime;
+            }
             curBulletDelay += Time.deltaTime;
             if (bulletCount >= maxBulletCount) {
                 isReload = true;
+                if (skillING && airType == EAirType.JetFighter) {
+                    curShotDelay += Time.deltaTime;
+                }
                 curShotDelay += Time.deltaTime;
                 if (maxShotDelay < curShotDelay) {
                     isReload = false;
@@ -273,10 +293,53 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable {
             bulletCount = maxBulletCount;
         }
     }
+    public void OnClickButtonSkill() {
+        if (isSkill == true) {
+            isSkill = false;
+            skillTimer = maxSkillTimer;
+            if(airType == EAirType.LightFighter) {
+                if (photonV.IsMine) {
+                    hp += 2;
+                    if(maxHp < hp) {
+                        hp = maxHp;
+                    }
+                }
+                hpText.text = hp.ToString();
+            }
+            else {
+                skillING = true;
+                StartCoroutine("SkillINGTimer", 10);
+            }
+            StartCoroutine("SkillTimer", 1);
+        }
+    }
     [PunRPC]
     public void StatRPC() {
         statCheck = false;
     }
+
+    IEnumerator SkillTimer(float delayTime) {
+        if (photonV.IsMine) {
+            yield return new WaitForSeconds(delayTime);
+            skillTimer--;
+            if (skillTimer >= 0) {
+                skillText.text = skillTimer.ToString();
+                StartCoroutine("SkillTimer", 1);
+            }
+            else {
+                skillText.text = "스킬 사용 가능";
+                isSkill = true;
+            }
+        }
+    }
+
+    IEnumerator SkillINGTimer(float delayTime) {
+        if (photonV.IsMine) {
+            yield return new WaitForSeconds(delayTime);
+            skillING = false;
+        }
+    }
+
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) {
         if (stream.IsWriting) {
             stream.SendNext(hpText.text);

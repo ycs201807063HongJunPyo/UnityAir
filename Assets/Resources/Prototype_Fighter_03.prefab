@@ -272,12 +272,14 @@ MonoBehaviour:
     type: 3}
   bulletObjB: {fileID: 7808497490535792506, guid: 8f12f2bc22644334dbddef42f4d01ce0,
     type: 3}
-  bulletCount: 0
-  maxBulletCount: 0
   maxHp: 15
   hp: 15
   hpText: {fileID: 3365517967680301314}
-  apAmmo: 0
+  skillTimer: 0
+  skillText: {fileID: 0}
+  isSkill: 0
+  bulletCount: 0
+  maxBulletCount: 0
   maxBulletDelay: 0
   curBulletDelay: 0
   maxShotDelay: 0
