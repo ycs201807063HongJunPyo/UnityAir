@@ -275,9 +275,12 @@ MonoBehaviour:
   maxHp: 15
   hp: 15
   hpText: {fileID: 3365517967680301314}
+  isLife: 0
   skillTimer: 0
+  maxSkillTimer: 0
   skillText: {fileID: 0}
   isSkill: 0
+  skillING: 0
   bulletCount: 0
   maxBulletCount: 0
   maxBulletDelay: 0

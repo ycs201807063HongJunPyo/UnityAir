@@ -32,7 +32,7 @@ public class RoomData : MonoBehaviourPunCallbacks {
         rInstance = this;
         //roomDataText = GetComponentInChildren<Text>();
         airForceStatText.text = string.Format("무기 : 기관총x2(250발)\n체력 : 7\n이동속도 : 3/3");
-        airForceText.text = string.Format("기본적인 전투기로 모든 상황에 적절히 대응합니다.");
+        airForceText.text = string.Format("기본적인 전투기로 모든 상황에 적절히 대응합니다.\n\n\n(스킬)긴급 수리 : 자신의 체력을 2 회복합니다.");
     }
     public void UpdateInfo() {
         roomDataText.text = string.Format("Room Name : {0} [{1} / {2}]", roomName, PhotonNetwork.PlayerList.Length, maxCount);

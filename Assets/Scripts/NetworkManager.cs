@@ -13,6 +13,8 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public InputField RoomInput;
     RoomOptions roomOp;
     public GameObject airSelectPanel;
+    public GameObject stageText;
+    public GameObject winPanel;
 
     private void Awake() {
         nInstance = this;
@@ -57,18 +59,27 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     IEnumerator DestoryBullet() {
         yield return new WaitForSeconds(0.2f);
         foreach (GameObject bullet in GameObject.FindGameObjectsWithTag("Bullet")) {
-            bullet.GetComponent<PhotonView>().RPC("DestoryRPC", RpcTarget.All);
+            bullet.GetComponent<PhotonView>().RPC("DestroyRPC", RpcTarget.All);
         }
         
     }
 
     public void Spawn() {
+        stageText.SetActive(true);
         roomOp.IsOpen = false;
         PhotonNetwork.Instantiate("Prototype_Fighter_03", Vector3.zero, Quaternion.identity);
         airSelectPanel.SetActive(false);
     }
 
-    public override void OnDisconnected(DisconnectCause cause) {
-        //IDPanel.SetActive(true);
+    public void Win() {
+        foreach (GameObject palyer in GameObject.FindGameObjectsWithTag("Player")) {
+            palyer.GetComponent<PhotonView>().RPC("DestroyRPC", RpcTarget.All);
+        }
+        winPanel.SetActive(true);
+        Invoke("Disconnect", 2f);
+    }
+    public void Disconnect() {
+        PhotonNetwork.Disconnect();
+        Application.Quit();
     }
 }

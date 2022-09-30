@@ -25,7 +25,6 @@ public class Enemy : MonoBehaviourPunCallbacks {
         enemyHp -= damage;
         if(enemyHp <= 0) {
             photonV.RPC("DestroyRPC", RpcTarget.AllBuffered);
-            GameManager.gmInstance.gameDeadUnit++;
         }
         /*  적절한 위치 지정해주기
         if(GameManager.gmInstance.gameStage % 2 == 0) {
@@ -42,7 +41,6 @@ public class Enemy : MonoBehaviourPunCallbacks {
     void OnTriggerEnter2D(Collider2D collision) {
         if(collision.gameObject.tag == "WallBullet") {
             photonV.RPC("DestroyRPC", RpcTarget.AllBuffered);
-            GameManager.gmInstance.gameDeadUnit++;
         }
         else if (collision.gameObject.tag == "Bullet" ) {
             Bullet bullet = collision.gameObject.GetComponent<Bullet>();
@@ -52,7 +50,6 @@ public class Enemy : MonoBehaviourPunCallbacks {
         else if (collision.tag == "Player") {
             collision.GetComponent<PlayerAir>().Hit();
             photonV.RPC("DestroyRPC", RpcTarget.AllBuffered);
-            GameManager.gmInstance.gameDeadUnit++;
         }
     }
 

@@ -9,7 +9,7 @@ public class GameManager : MonoBehaviourPun, IPunObservable {
 
     [SerializeField]
     private Text gameWaitText;
-    private int waitCount = 10;
+    private int waitCount = 7;
 
     public GameObject[] enemyObjs;
     public Transform[] spawnPoints;
@@ -22,11 +22,9 @@ public class GameManager : MonoBehaviourPun, IPunObservable {
     public float curDelay;
 
     public int gameStage;
+    public Text gameStageText;
     public int gameCurUnit;
     public int gameMaxUnit;
-
-    public int gameDeadUnit;
-
 
     void Awake() {
         gmInstance = this;
@@ -34,12 +32,13 @@ public class GameManager : MonoBehaviourPun, IPunObservable {
     void Start() {
         gameMaxUnit = 5;
         gameCurUnit = gameMaxUnit;
-        gameDeadUnit = 0;
         switchBool = false;
         gameStage = 1;
+        gameStageText.text = gameStage.ToString();
     }
 
     void Update() {
+        
         if (gameStart == true && gameCurUnit > 0) {
             if (!PhotonNetwork.IsMasterClient) {
                 return;
@@ -56,7 +55,6 @@ public class GameManager : MonoBehaviourPun, IPunObservable {
                 StartCoroutine("StageWaitTimer");
                 switchBool = true;
             }
-            
         }
         
     }
@@ -94,7 +92,7 @@ public class GameManager : MonoBehaviourPun, IPunObservable {
         }
         else {
             waitCount = 7;
-            gameMaxUnit += 5;
+            gameMaxUnit += 3;
             gameCurUnit = gameMaxUnit;
             gameWaitText.text = "";
             switchBool = false;
@@ -103,22 +101,37 @@ public class GameManager : MonoBehaviourPun, IPunObservable {
 
     
     IEnumerator StageWaitTimer() {
-        yield return new WaitForSeconds(3.0f);
+        yield return new WaitForSeconds(4.0f);
         if (PhotonNetwork.IsMasterClient) {
             PhotonNetwork.Instantiate("StatPoint", Vector3.zero, Quaternion.identity);
         }
         gameStage++;
-        WaitTime();
+        gameStageText.text = gameStage.ToString();
+        if (gameStage >= 21) {
+            StartCoroutine("WinGameTimer");
+        }
+        else {
+            WaitTime();
+        }
+    }
+
+    IEnumerator WinGameTimer() {
+        yield return new WaitForSeconds(3.0f);
+        NetworkManager.nInstance.Win();
     }
     
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) {
         if (stream.IsWriting) {
             stream.SendNext(gameStage);
+            stream.SendNext(gameCurUnit);
             stream.SendNext(gameWaitText.text);
+            stream.SendNext(gameStageText.text);
         }
         else {
             this.gameStage = (int)stream.ReceiveNext();
+            this.gameCurUnit = (int)stream.ReceiveNext();
             this.gameWaitText.text = (string)stream.ReceiveNext();
+            this.gameStageText.text = (string)stream.ReceiveNext();
         }
     }
 }

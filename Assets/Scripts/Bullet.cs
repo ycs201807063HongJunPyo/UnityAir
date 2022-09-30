@@ -23,11 +23,12 @@ public class Bullet : MonoBehaviourPunCallbacks {
         if (other.gameObject.tag == "WallBullet") {
             photonV.RPC("DestroyRPC", RpcTarget.All);
         }
-
+        /* 팀킬 방지
         if (!photonV.IsMine && other.tag == "Player" && other.GetComponent<PhotonView>().IsMine) {
             other.GetComponent<PlayerAir>().Hit();
             photonV.RPC("DestroyRPC", RpcTarget.AllBuffered);
         }
+        */
         if(other.tag == "Enemy") {
             bulletHitCount--;
         }

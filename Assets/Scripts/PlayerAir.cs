@@ -35,6 +35,7 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable {
     public int maxHp;
     public int hp;
     public Text hpText;
+    public bool isLife;
 
     //스킬 관련
     public int skillTimer;
@@ -87,6 +88,7 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable {
         isSkill = false;
         skillText = GameObject.Find("Canvas").transform.Find("Main Image").transform.Find("SkillText").GetComponent<Text>();
         StartCoroutine("SkillTimer", 1);
+        isLife = true;
         hpText.text = hp.ToString();
     }
 
@@ -94,17 +96,17 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable {
         Move();
         Fire();
         Reload();
-        if (photonV.IsMine && statCheck == false) {
+        if (photonV.IsMine && statCheck == false && isLife) {
             GameObject.Find("Canvas").transform.Find("Unit Stat Panel").transform.Find("FirstStatButton").GetComponent<Button>().onClick.AddListener(() => this.OnClickButtonFirst(statCheck));
             GameObject.Find("Canvas").transform.Find("Unit Stat Panel").transform.Find("SecondStatButton").GetComponent<Button>().onClick.AddListener(() => this.OnClickButtonSecond(statCheck));
         }
-        if (photonV.IsMine && isReload == false)
+        if (photonV.IsMine && isReload == false && isLife)
             GameObject.Find("Canvas").transform.Find("Main Image").transform.Find("GameUI").transform.Find("ReloadButton").GetComponent<Button>().onClick.AddListener(() => this.OnClickButtonReload());
-        if (photonV.IsMine && isSkill == true)
+        if (photonV.IsMine && isSkill == true && isLife)
             GameObject.Find("Canvas").transform.Find("Main Image").transform.Find("GameUI").transform.Find("SkillButton").GetComponent<Button>().onClick.AddListener(() => this.OnClickButtonSkill());
     }
     void Move() {
-        if (photonV.IsMine) {
+        if (photonV.IsMine && isLife) {
             float h = Input.GetAxisRaw("Horizontal");
             if ((h == 1 && isWallRight) || (h == -1 && isWallLeft)) {
                 h = 0;
@@ -121,7 +123,7 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable {
     }
 
     public void Fire() {
-        if (Input.GetButton("Fire1") && bulletCount < maxBulletCount && curBulletDelay > maxBulletDelay && photonV.IsMine) {
+        if (Input.GetButton("Fire1") && bulletCount < maxBulletCount && curBulletDelay > maxBulletDelay && photonV.IsMine && isLife) {
             if (airType == EAirType.LightFighter) {
                 PhotonNetwork.Instantiate("PlayerBullet A", transform.position + Vector3.right * 0.2f, transform.rotation).GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, 1);
                 PhotonNetwork.Instantiate("PlayerBullet A", transform.position + Vector3.left * 0.2f, transform.rotation).GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, 1);
@@ -136,7 +138,7 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable {
 
     }
     public void Reload() {
-        if (photonV.IsMine) {
+        if (photonV.IsMine && isLife) {
             if (skillING && airType == EAirType.JetFighter) {
                 curBulletDelay += Time.deltaTime;
             }
@@ -157,10 +159,13 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable {
     }
 
     public void Hit() {
-        hp--;
-        hpText.text = hp.ToString();
-        if (hp <= 0) {
-            photonV.RPC("DestroyRPC", RpcTarget.AllBuffered);
+        if (isLife) {
+            hp--;
+            hpText.text = hp.ToString();
+            if (hp <= 0) {
+                tag = "DeadPlayer";
+                isLife = false;
+            }
         }
     }
 
@@ -187,6 +192,11 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable {
         if (other.gameObject.tag == "StatPoint") {
             GameObject.Find("Canvas").transform.Find("Unit Stat Panel").gameObject.SetActive(true);
             GameObject.Find("Canvas").transform.Find("Unit Stat Panel").gameObject.GetComponent<PlayerStat>().OpenStat();
+            isLife = true;
+            tag = "Player";
+            if (maxHp > hp)
+                hp++;
+            hpText.text = hp.ToString();
             Destroy(other.gameObject);
             photonV.RPC("StatRPC", RpcTarget.All);
         }
@@ -317,7 +327,6 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable {
     public void StatRPC() {
         statCheck = false;
     }
-
     IEnumerator SkillTimer(float delayTime) {
         if (photonV.IsMine) {
             yield return new WaitForSeconds(delayTime);
@@ -343,9 +352,11 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable {
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) {
         if (stream.IsWriting) {
             stream.SendNext(hpText.text);
+            stream.SendNext(tag);
         }
         else {
             this.hpText.text = (string)stream.ReceiveNext();
+            tag = (string)stream.ReceiveNext();
         }
     }
 }
