@@ -13,6 +13,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public InputField RoomInput;
     RoomOptions roomOp;
     public GameObject airSelectPanel;
+    public GameObject mainGamePanel;
     public GameObject stageText;
     public GameObject winPanel;
 
@@ -69,6 +70,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         roomOp.IsOpen = false;
         PhotonNetwork.Instantiate("Prototype_Fighter_03", Vector3.zero, Quaternion.identity);
         airSelectPanel.SetActive(false);
+        mainGamePanel.SetActive(true);
     }
 
     public void Win() {

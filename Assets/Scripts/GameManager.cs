@@ -103,7 +103,8 @@ public class GameManager : MonoBehaviourPun, IPunObservable {
     IEnumerator StageWaitTimer() {
         yield return new WaitForSeconds(4.0f);
         if (PhotonNetwork.IsMasterClient) {
-            PhotonNetwork.Instantiate("StatPoint", Vector3.zero, Quaternion.identity);
+            if(gameStage != 10)
+                PhotonNetwork.Instantiate("StatPoint", Vector3.zero, Quaternion.identity);
         }
         gameStage++;
         gameStageText.text = gameStage.ToString();

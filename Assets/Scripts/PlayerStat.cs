@@ -36,7 +36,6 @@ public class PlayerStat : MonoBehaviourPunCallbacks {
 
     }
     public void OpenStat() {
-        //statSelectPanel.SetActive(true);
         statRandom = Random.Range(0, 6);
 
         if (statRandom == 0) {
