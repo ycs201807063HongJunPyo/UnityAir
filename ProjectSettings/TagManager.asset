@@ -10,6 +10,7 @@ TagManager:
   - Enemy
   - StatPoint
   - DeadPlayer
+  - EngravePoint
   layers:
   - Default
   - TransparentFX
@@ -19,8 +20,8 @@ TagManager:
   - UI
   - 
   - 
-  - 
-  - 
+  - unit
+  - upUI
   - 
   - 
   - 
@@ -46,4 +47,10 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: unit
+    uniqueID: 1643737155
+    locked: 0
+  - name: upUI
+    uniqueID: 2854781451
     locked: 0

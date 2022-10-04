@@ -25,6 +25,11 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable {
     public bool statCheck;
     public bool isReload;
 
+    //각인 관련
+    public bool engraveCheck;
+    public bool isPlusHp;  //부품 회수
+    public bool isGunPack; //건팩
+
     public PhotonView photonV;
     public Text nickname;
 
@@ -38,8 +43,8 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable {
     public bool isLife;
 
     //스킬 관련
-    public int skillTimer;
-    public int maxSkillTimer;
+    public float skillTimer;
+    public float maxSkillTimer;
     public Text skillText;
     public bool isSkill;//스킬 버튼 눌렀는지 확인
     public bool skillING;//스킬 사용중
@@ -84,6 +89,7 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable {
         }
         skillTimer = maxSkillTimer;
         statCheck = false;
+        engraveCheck = false;
         isReload = false;
         isSkill = false;
         skillText = GameObject.Find("Canvas").transform.Find("Main Image").transform.Find("SkillText").GetComponent<Text>();
@@ -100,10 +106,16 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable {
             GameObject.Find("Canvas").transform.Find("Unit Stat Panel").transform.Find("FirstStatButton").GetComponent<Button>().onClick.AddListener(() => this.OnClickButtonFirst(statCheck));
             GameObject.Find("Canvas").transform.Find("Unit Stat Panel").transform.Find("SecondStatButton").GetComponent<Button>().onClick.AddListener(() => this.OnClickButtonSecond(statCheck));
         }
-        if (photonV.IsMine && isReload == false && isLife)
+        if (photonV.IsMine && engraveCheck == false && isLife) {
+            GameObject.Find("Canvas").transform.Find("Unit Engrave Panel").transform.Find("EngraveButton").GetComponent<Button>().onClick.AddListener(() => this.OnClickButtonEngrave(engraveCheck));
+        }
+        
+        if (photonV.IsMine && isReload == false && isLife) {
             GameObject.Find("Canvas").transform.Find("Main Image").transform.Find("GameUI").transform.Find("ReloadButton").GetComponent<Button>().onClick.AddListener(() => this.OnClickButtonReload());
-        if (photonV.IsMine && isSkill == true && isLife)
+        }
+        if (photonV.IsMine && isSkill == true && isLife) {
             GameObject.Find("Canvas").transform.Find("Main Image").transform.Find("GameUI").transform.Find("SkillButton").GetComponent<Button>().onClick.AddListener(() => this.OnClickButtonSkill());
+        }
     }
     void Move() {
         if (photonV.IsMine && isLife) {
@@ -127,10 +139,17 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable {
             if (airType == EAirType.LightFighter) {
                 PhotonNetwork.Instantiate("PlayerBullet A", transform.position + Vector3.right * 0.2f, transform.rotation).GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, 1);
                 PhotonNetwork.Instantiate("PlayerBullet A", transform.position + Vector3.left * 0.2f, transform.rotation).GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, 1);
+                if (isGunPack) {
+                    PhotonNetwork.Instantiate("PlayerBullet A", transform.position + Vector3.right * 0.1f, transform.rotation).GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, 1);
+                    PhotonNetwork.Instantiate("PlayerBullet A", transform.position + Vector3.left * 0.1f, transform.rotation).GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, 1);
+                }
             }
             else if (airType == EAirType.JetFighter) {
                 PhotonNetwork.Instantiate("PlayerBullet B", transform.position + Vector3.right * 0.25f, transform.rotation).GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, 1);
                 PhotonNetwork.Instantiate("PlayerBullet B", transform.position + Vector3.left * 0.25f, transform.rotation).GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, 1);
+                if (isGunPack) {
+                    PhotonNetwork.Instantiate("PlayerBullet B", transform.position, transform.rotation).GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, 1);
+                }
             }
             bulletCount++;
             curBulletDelay = 0;
@@ -194,12 +213,28 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable {
             GameObject.Find("Canvas").transform.Find("Unit Stat Panel").gameObject.GetComponent<PlayerStat>().OpenStat();
             isLife = true;
             tag = "Player";
-            if (maxHp > hp)
+            if (maxHp > hp) {
                 hp++;
+                if(maxHp > hp && isPlusHp) {
+                    hp++;
+                }
+            }
             hpText.text = hp.ToString();
             Destroy(other.gameObject);
             photonV.RPC("StatRPC", RpcTarget.All);
         }
+        
+        else if (other.gameObject.tag == "EngravePoint") {
+            GameObject.Find("Canvas").transform.Find("Unit Engrave Panel").gameObject.SetActive(true);
+            GameObject.Find("Canvas").transform.Find("Unit Engrave Panel").gameObject.GetComponent<PlayerEngrave>().OpenEngrave();
+            isLife = true;
+            tag = "Player";
+            hp = maxHp;
+            hpText.text = hp.ToString();
+            Destroy(other.gameObject);
+            photonV.RPC("EngraveRPC", RpcTarget.All);
+        }
+        
     }
     void OnTriggerExit2D(Collider2D other) {
         if (other.gameObject.tag == "Wall") {
@@ -298,12 +333,14 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable {
         }
     }
     public void OnClickButtonReload() {
+        Debug.Log("장전");
         if (isReload == false) {
             isReload = true;
             bulletCount = maxBulletCount;
         }
     }
     public void OnClickButtonSkill() {
+        Debug.Log("스킬");
         if (isSkill == true) {
             isSkill = false;
             skillTimer = maxSkillTimer;
@@ -323,9 +360,36 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable {
             StartCoroutine("SkillTimer", 1);
         }
     }
+    
+    public void OnClickButtonEngrave(bool isCheck) {
+        if (isCheck == false) {
+            Debug.Log("들어왓다");
+            engraveCheck = true;
+            isCheck = true;
+            int select = PlayerEngrave.peInstance.engraveRandom;
+            if (select == 0) {
+                isPlusHp = true;
+            }
+            else if (select == 1) {
+                maxSkillTimer *= 0.8f;
+                skillTimer = maxSkillTimer;
+            }
+            else if (select == 2) {
+                isGunPack = true;
+            }
+            hpText.text = hp.ToString();
+            GameObject.Find("Canvas").transform.Find("Unit Engrave Panel").gameObject.SetActive(false);
+        }
+    }
+    
     [PunRPC]
     public void StatRPC() {
         statCheck = false;
+    }
+
+    [PunRPC]
+    public void EngraveRPC() {
+        engraveCheck = false;
     }
     IEnumerator SkillTimer(float delayTime) {
         if (photonV.IsMine) {

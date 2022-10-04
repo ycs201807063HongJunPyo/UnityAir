@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4551479145426966113}
   - component: {fileID: 5962205253666371998}
   - component: {fileID: 2401783299565249978}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: name
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -89,7 +89,7 @@ GameObject:
   - component: {fileID: 5117955700983657787}
   - component: {fileID: 734160833299142818}
   - component: {fileID: 3365517967680301314}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: HpText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -173,7 +173,7 @@ GameObject:
   - component: {fileID: 5863559079552277348}
   - component: {fileID: 5990649014330375968}
   - component: {fileID: -3715000586164227707}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Prototype_Fighter_03
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -266,6 +266,9 @@ MonoBehaviour:
   isWallBottom: 0
   statCheck: 0
   isReload: 1
+  engraveCheck: 0
+  isPlusHp: 0
+  isGunPack: 0
   photonV: {fileID: 4135584090642401372}
   nickname: {fileID: 2401783299565249978}
   bulletObjA: {fileID: 2163914630945483347, guid: 7e77768b24688cc4c9f9987b06867a52,
@@ -420,7 +423,7 @@ GameObject:
   - component: {fileID: 4351526492479241586}
   - component: {fileID: 3167604975570601720}
   - component: {fileID: 7797161334164206261}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}

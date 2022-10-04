@@ -11,11 +11,11 @@ public class RoomData : MonoBehaviourPunCallbacks {
 
     public string roomName = "";
     public int playerCount = 0;
-    public int maxCount = 2;
+    public int maxCount;
 
     public bool switchBool = false;
 
-    private int readyCount = 3;
+    private int readyCount = 5;
     public static int airforceCount = 0;
 
     [SerializeField]
@@ -33,9 +33,10 @@ public class RoomData : MonoBehaviourPunCallbacks {
         //roomDataText = GetComponentInChildren<Text>();
         airForceStatText.text = string.Format("무기 : 기관총x2(250발)\n체력 : 7\n이동속도 : 3/3");
         airForceText.text = string.Format("기본적인 전투기로 모든 상황에 적절히 대응합니다.\n\n\n(스킬)긴급 수리 : 자신의 체력을 2 회복합니다.");
+        maxCount = NetworkManager.nInstance.roomOp.MaxPlayers;
     }
     public void UpdateInfo() {
-        roomDataText.text = string.Format("Room Name : {0} [{1} / {2}]", roomName, PhotonNetwork.PlayerList.Length, maxCount);
+        roomDataText.text = string.Format("방 제목 : {0}\n인원수 : [{1} / {2}]", roomName, PhotonNetwork.PlayerList.Length, maxCount);
     }
      
     public void NextButton() {

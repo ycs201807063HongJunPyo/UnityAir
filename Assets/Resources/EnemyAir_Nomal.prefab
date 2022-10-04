@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 802995605904338431}
   - component: {fileID: 802995605904338430}
   - component: {fileID: 802995605904338417}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: EnemyAir_Nomal
   m_TagString: Enemy
   m_Icon: {fileID: 0}

@@ -11,7 +11,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public InputField NickNameInput;
     public InputField RoomInput;
-    RoomOptions roomOp;
+    public RoomOptions roomOp;
     public GameObject airSelectPanel;
     public GameObject mainGamePanel;
     public GameObject stageText;
@@ -22,8 +22,9 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         Screen.SetResolution(1080, 1920, false);
         PhotonNetwork.SendRate = 120;
         PhotonNetwork.SerializationRate = 60;
+        roomOp = new RoomOptions();
     }
-
+    /*
     public void isRoomStart() {
         if(roomOp.IsOpen != false) {
             Connect();
@@ -31,14 +32,23 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         else { 
         }
     }
-
-    public void Connect() => PhotonNetwork.ConnectUsingSettings();
-
-    public override void OnConnectedToMaster() {
+    */
+    
+    public void Connect() { 
+        PhotonNetwork.ConnectUsingSettings();
         PhotonNetwork.LocalPlayer.NickName = NickNameInput.text;
-        roomOp = new RoomOptions();
         roomOp.MaxPlayers = 2;
         roomOp.IsOpen = true;
+    }
+
+    public void SoloConnect() {
+        PhotonNetwork.ConnectUsingSettings();
+        PhotonNetwork.LocalPlayer.NickName = NickNameInput.text;
+        roomOp.MaxPlayers = 1;
+        roomOp.IsOpen = false;
+    }
+
+    public override void OnConnectedToMaster() {
         PhotonNetwork.JoinOrCreateRoom(RoomInput.text, roomOp, null);
     }
 

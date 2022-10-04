@@ -16,6 +16,7 @@ public class Enemy : MonoBehaviourPunCallbacks {
     void Awake() {
         spriteRenderer = GetComponent<SpriteRenderer>();
         rigid = GetComponent<Rigidbody2D>();
+        speed = PhotonNetwork.PlayerList.Length>=2 ? speed : speed *= 0.8f;
         rigid.velocity = Vector2.down * speed;
     }
 

@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 7888698760947357344}
   - component: {fileID: 7888698760947357345}
   - component: {fileID: 7888698760947357346}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: EnemyAir_Range
   m_TagString: Enemy
   m_Icon: {fileID: 0}

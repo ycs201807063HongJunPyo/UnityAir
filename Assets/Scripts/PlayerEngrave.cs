@@ -6,7 +6,7 @@ using Photon.Pun;
 
 //0 : 부품 회수
 //1 : 시전 향상
-//2 : 개량 탄창
+//2 : 건팩
 public class PlayerEngrave : MonoBehaviourPunCallbacks {
     public static PlayerEngrave peInstance;
     public int engraveRandom;
@@ -16,8 +16,9 @@ public class PlayerEngrave : MonoBehaviourPunCallbacks {
 
     void Start() {
         engraveRandom = 0;
+        peInstance = this;
     }
-    public void OnEngrave() {
+    public void OpenEngrave() {
         engraveRandom = Random.Range(0, 2);
 
         if (engraveRandom == 0) {
@@ -27,7 +28,7 @@ public class PlayerEngrave : MonoBehaviourPunCallbacks {
             engraveText.text = "스킬 재사용 시간이 20% 감소합니다.";
         }
         else if (engraveRandom == 2) {
-            engraveText.text = "차탄 장전시간이 15% 감소합니다.";
+            engraveText.text = "추가 무장이 지급됩니다.";
         }
     }
 }
