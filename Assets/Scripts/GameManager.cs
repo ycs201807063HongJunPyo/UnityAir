@@ -12,6 +12,7 @@ public class GameManager : MonoBehaviourPun, IPunObservable {
     private int waitCount = 7;
 
     public GameObject[] enemyObjs;
+    public GameObject[] cloudObjs;
     public Transform[] spawnPoints;
 
     public bool gameStart;
@@ -67,13 +68,18 @@ public class GameManager : MonoBehaviourPun, IPunObservable {
 
             ranEnemy = Random.Range(0, 1);
         }
-        else if (gameStage <= 8) {
+        else if (gameStage <= 12) {
             ranEnemy = Random.Range(0, 2);
         }
         else {
             ranEnemy = Random.Range(0, 3);
         }
         int ranPoint = Random.Range(0, 5);
+        if (ranPoint <= 1) {
+            int ranCloud;
+            ranCloud = Random.Range(0, 2);
+            PhotonNetwork.Instantiate(cloudObjs[ranCloud].name, spawnPoints[ranPoint].position, spawnPoints[ranPoint].rotation);
+        }
         PhotonNetwork.Instantiate(enemyObjs[ranEnemy].name, spawnPoints[ranPoint].position, spawnPoints[ranPoint].rotation);
         gameCurUnit--;
     }
