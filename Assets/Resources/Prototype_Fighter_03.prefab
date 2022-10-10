@@ -291,6 +291,10 @@ MonoBehaviour:
   curBulletDelay: 0
   maxShotDelay: 0
   curShotDelay: 1
+  fireCount: 0
+  bulletText: {fileID: 0}
+  isFire: 0
+  isFireDelay: 0
 --- !u!61 &7338750718144047066
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -301,7 +305,7 @@ BoxCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0.05}

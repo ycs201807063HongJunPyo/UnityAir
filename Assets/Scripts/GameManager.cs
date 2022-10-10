@@ -9,7 +9,7 @@ public class GameManager : MonoBehaviourPun, IPunObservable {
 
     [SerializeField]
     private Text gameWaitText;
-    private int waitCount = 7;
+    private int waitCount = 9;
 
     public GameObject[] enemyObjs;
     public GameObject[] cloudObjs;
@@ -35,7 +35,7 @@ public class GameManager : MonoBehaviourPun, IPunObservable {
         gameCurUnit = gameMaxUnit;
         switchBool = false;
         gameStage = 1;
-        gameStageText.text = gameStage.ToString();
+        gameStageText.text = "현재 스테이지 : " + gameStage.ToString() + "\n/ 남은 적 : " + gameCurUnit;
     }
 
     void Update() {
@@ -97,7 +97,7 @@ public class GameManager : MonoBehaviourPun, IPunObservable {
             StartCoroutine("GameWaitTimer", 1);
         }
         else {
-            waitCount = 7;
+            waitCount = 9;
             gameMaxUnit += 3;
             gameCurUnit = gameMaxUnit;
             gameWaitText.text = "";
@@ -117,7 +117,7 @@ public class GameManager : MonoBehaviourPun, IPunObservable {
             }
         }
         gameStage++;
-        gameStageText.text = gameStage.ToString();
+        gameStageText.text = "현재 스테이지 : " + gameStage.ToString() + "\n/ 남은 적 : " + gameCurUnit;
         if (gameStage >= 21) {
             StartCoroutine("WinGameTimer");
         }
@@ -130,7 +130,16 @@ public class GameManager : MonoBehaviourPun, IPunObservable {
         yield return new WaitForSeconds(3.0f);
         NetworkManager.nInstance.Win();
     }
-    
+
+    //게임 종료
+    public void GameQuit() {
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
+    }
+
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) {
         if (stream.IsWriting) {
             stream.SendNext(gameStage);
@@ -145,4 +154,6 @@ public class GameManager : MonoBehaviourPun, IPunObservable {
             this.gameStageText.text = (string)stream.ReceiveNext();
         }
     }
+
+
 }

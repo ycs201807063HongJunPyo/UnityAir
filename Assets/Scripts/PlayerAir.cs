@@ -57,6 +57,10 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable {
     public float curBulletDelay;//차탄 장전 속도
     public float maxShotDelay;//재장전 시간
     public float curShotDelay;//재장전 속도
+    public int fireCount;//버튼 클릭때 몇번 사격하는지
+    public Text bulletText;
+    public bool isFire;//사격 진행 버튼
+    public bool isFireDelay;//사격 진행 버튼
 
     // Update is called once per frame
 
@@ -65,7 +69,6 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable {
 
     }
     void Start() {
-
         if (RoomData.airforceCount == 0) {
             airType = EAirType.LightFighter;
             maxHp = 7;
@@ -76,6 +79,7 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable {
             maxBulletDelay = 0.15f;
             maxShotDelay = 3f;
             maxSkillTimer = 40;
+            fireCount = 3;
         }
         else if (RoomData.airforceCount == 1) {
             airType = EAirType.JetFighter;
@@ -87,6 +91,7 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable {
             maxBulletDelay = 0.6f;
             maxShotDelay = 7f;
             maxSkillTimer = 60;
+            fireCount = 1;
         }
         skillTimer = maxSkillTimer;
         statCheck = false;
@@ -94,14 +99,19 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable {
         isReload = false;
         isSkill = false;
         skillText = GameObject.Find("Canvas").transform.Find("Main Image").transform.Find("SkillText").GetComponent<Text>();
+        bulletText = GameObject.Find("Canvas").transform.Find("Main Image").transform.Find("BulletText").GetComponent<Text>();
+        bulletText.text = "탄약 : " + (maxBulletCount - bulletCount);
         StartCoroutine("SkillTimer", 1);
         isLife = true;
+        isFire = false;
+        isFireDelay = false;
         joy = GameObject.Find("Canvas").transform.Find("Main Image").transform.Find("GameUI").transform.Find("Variable Joystick 1").GetComponent<VariableJoystick>();
         hpText.text = hp.ToString();
     }
 
     void Update() {
         Move();
+        Fire();
         Reload();
         if (photonV.IsMine && statCheck == false && isLife) {
             GameObject.Find("Canvas").transform.Find("Unit Stat Panel").transform.Find("FirstStatButton").GetComponent<Button>().onClick.AddListener(() => this.OnClickButtonFirst(statCheck));
@@ -110,8 +120,9 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable {
         if (photonV.IsMine && engraveCheck == false && isLife) {
             GameObject.Find("Canvas").transform.Find("Unit Engrave Panel").transform.Find("EngraveButton").GetComponent<Button>().onClick.AddListener(() => this.OnClickButtonEngrave(engraveCheck));
         }
-        if (photonV.IsMine && isLife) {
+        if (photonV.IsMine && isLife && isFireDelay == false) {
             GameObject.Find("Canvas").transform.Find("Main Image").transform.Find("GameUI").transform.Find("AttackButton").GetComponent<Button>().onClick.AddListener(() => this.OnClickButtonAttack());
+            isFireDelay = true;
         }
         if (photonV.IsMine && isReload == false && isLife) {
             GameObject.Find("Canvas").transform.Find("Main Image").transform.Find("GameUI").transform.Find("ReloadButton").GetComponent<Button>().onClick.AddListener(() => this.OnClickButtonReload());
@@ -123,11 +134,12 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable {
     void Move() {
         if (photonV.IsMine && isLife) {
             float h = (joy.Horizontal * -1);
-            if ((h == 1 && isWallRight) || (h == -1 && isWallLeft)) {
+            Debug.Log(h);
+            if ((h > 0 && isWallRight) || (h < 0 && isWallLeft)) {
                 h = 0;
             }
             float v = (joy.Vertical * -1);
-            if ((v == 1 && isWallTop) || (v == -1 && isWallBottom)) {
+            if ((v > 0 && isWallTop) || (v < 0 && isWallBottom)) {
                 v = 0;
             }
             Vector3 currentPos = transform.position;
@@ -138,27 +150,42 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable {
     }
 
     public void OnClickButtonAttack() {
-        if (bulletCount < maxBulletCount && curBulletDelay > maxBulletDelay && photonV.IsMine && isLife) {
-            if (airType == EAirType.LightFighter) {
-                PhotonNetwork.Instantiate("PlayerBullet A", transform.position + Vector3.right * 0.2f, transform.rotation).GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, 1);
-                PhotonNetwork.Instantiate("PlayerBullet A", transform.position + Vector3.left * 0.2f, transform.rotation).GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, 1);
-                if (isGunPack) {
-                    PhotonNetwork.Instantiate("PlayerBullet A", transform.position + Vector3.right * 0.1f, transform.rotation).GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, 1);
-                    PhotonNetwork.Instantiate("PlayerBullet A", transform.position + Vector3.left * 0.1f, transform.rotation).GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, 1);
-                }
+        if (isFireDelay) {
+            if (isFire == true) {
+                isFire = false;
             }
-            else if (airType == EAirType.JetFighter) {
-                PhotonNetwork.Instantiate("PlayerBullet B", transform.position + Vector3.right * 0.25f, transform.rotation).GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, 1);
-                PhotonNetwork.Instantiate("PlayerBullet B", transform.position + Vector3.left * 0.25f, transform.rotation).GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, 1);
-                if (isGunPack) {
-                    PhotonNetwork.Instantiate("PlayerBullet B", transform.position, transform.rotation).GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, 1);
-                }
+            else if (isFire == false) {
+                isFire = true;
             }
-            bulletCount++;
-            curBulletDelay = 0;
         }
-
+        isFireDelay = false;
     }
+
+    public void Fire() {
+        if (isFire) {
+            if (bulletCount < maxBulletCount && curBulletDelay > maxBulletDelay && photonV.IsMine && isLife && isFire) {
+                if (airType == EAirType.LightFighter) {
+                    PhotonNetwork.Instantiate("PlayerBullet A", transform.position + Vector3.right * 0.2f, transform.rotation).GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, 1);
+                    PhotonNetwork.Instantiate("PlayerBullet A", transform.position + Vector3.left * 0.2f, transform.rotation).GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, 1);
+                    if (isGunPack) {
+                        PhotonNetwork.Instantiate("PlayerBullet A", transform.position + Vector3.right * 0.1f, transform.rotation).GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, 1);
+                        PhotonNetwork.Instantiate("PlayerBullet A", transform.position + Vector3.left * 0.1f, transform.rotation).GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, 1);
+                    }
+                }
+                else if (airType == EAirType.JetFighter) {
+                    PhotonNetwork.Instantiate("PlayerBullet B", transform.position + Vector3.right * 0.25f, transform.rotation).GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, 1);
+                    PhotonNetwork.Instantiate("PlayerBullet B", transform.position + Vector3.left * 0.25f, transform.rotation).GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, 1);
+                    if (isGunPack) {
+                        PhotonNetwork.Instantiate("PlayerBullet B", transform.position, transform.rotation).GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, 1);
+                    }
+                }
+                bulletCount++;
+                bulletText.text = "탄약 : " + (maxBulletCount - bulletCount);
+                curBulletDelay = 0;
+            }
+        }
+    }
+
     public void Reload() {
         if (photonV.IsMine && isLife) {
             if (skillING && airType == EAirType.JetFighter) {
@@ -397,7 +424,7 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable {
             yield return new WaitForSeconds(delayTime);
             skillTimer--;
             if (skillTimer >= 0) {
-                skillText.text = skillTimer.ToString();
+                skillText.text = "스킬 쿨타임 : " + skillTimer.ToString();
                 StartCoroutine("SkillTimer", 1);
             }
             else {

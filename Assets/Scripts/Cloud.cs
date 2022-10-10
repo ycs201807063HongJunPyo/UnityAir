@@ -12,7 +12,7 @@ public class Cloud : MonoBehaviourPunCallbacks {
     void Awake() {
 
         rigid = GetComponent<Rigidbody2D>();
-        rigid.velocity = (Vector2.down * speed) / 2;
+        rigid.velocity = Vector2.down * speed;
     }
 
 

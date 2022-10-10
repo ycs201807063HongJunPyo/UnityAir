@@ -97,7 +97,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 94a5c11477d8f2847bc790ab926e8c45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 0.2
+  speed: 0.1
   photonV: {fileID: 7058816460186035468}
 --- !u!114 &7058816460186035468
 MonoBehaviour:
