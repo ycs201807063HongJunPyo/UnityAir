@@ -193,6 +193,7 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable {
             }
             curBulletDelay += Time.deltaTime;
             if (bulletCount >= maxBulletCount) {
+                bulletText.text = "장전중...";
                 isReload = true;
                 if (skillING && airType == EAirType.JetFighter) {
                     curShotDelay += Time.deltaTime;
@@ -202,6 +203,7 @@ public class PlayerAir : MonoBehaviourPunCallbacks, IPunObservable {
                     isReload = false;
                     curShotDelay = 0;
                     bulletCount = 0;
+                    bulletText.text = "탄약 : " + (maxBulletCount - bulletCount);
                 }
             }
         }

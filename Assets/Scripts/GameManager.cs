@@ -35,7 +35,6 @@ public class GameManager : MonoBehaviourPun, IPunObservable {
         gameCurUnit = gameMaxUnit;
         switchBool = false;
         gameStage = 1;
-        gameStageText.text = "현재 스테이지 : " + gameStage.ToString() + "\n/ 남은 적 : " + gameCurUnit;
     }
 
     void Update() {
@@ -46,8 +45,11 @@ public class GameManager : MonoBehaviourPun, IPunObservable {
             }
             curDelay += Time.deltaTime;
             if (curDelay > maxDelay) {
+                if(gameStage >= 10) {
+                    SpawnEnemy();
+                }
                 SpawnEnemy();
-                maxDelay = Random.Range(0.5f, 1.5f);
+                maxDelay = Random.Range(0.3f, 0.8f);
                 curDelay = 0;
             }
         }
@@ -64,24 +66,25 @@ public class GameManager : MonoBehaviourPun, IPunObservable {
 
     void SpawnEnemy() {
         int ranEnemy;
-        if (gameStage <= 3) {
-
+        if (gameStage <= 4) {
             ranEnemy = Random.Range(0, 1);
         }
-        else if (gameStage <= 12) {
+        else if (gameStage <= 10) {
             ranEnemy = Random.Range(0, 2);
         }
         else {
             ranEnemy = Random.Range(0, 3);
         }
         int ranPoint = Random.Range(0, 5);
-        if (ranPoint <= 1) {
+        int cloudPoint = Random.Range(0, 8);
+        if (cloudPoint <= 6) {
             int ranCloud;
             ranCloud = Random.Range(0, 2);
             PhotonNetwork.Instantiate(cloudObjs[ranCloud].name, spawnPoints[ranPoint].position, spawnPoints[ranPoint].rotation);
         }
         PhotonNetwork.Instantiate(enemyObjs[ranEnemy].name, spawnPoints[ranPoint].position, spawnPoints[ranPoint].rotation);
         gameCurUnit--;
+        gameStageText.text = "현재 스테이지 : " + gameStage.ToString() + "\n 남은 적 공세 : " + gameCurUnit;
     }
     void WaitTime() {
         StartCoroutine("GameWaitTimer", 1);
@@ -117,7 +120,7 @@ public class GameManager : MonoBehaviourPun, IPunObservable {
             }
         }
         gameStage++;
-        gameStageText.text = "현재 스테이지 : " + gameStage.ToString() + "\n/ 남은 적 : " + gameCurUnit;
+        gameStageText.text = "현재 스테이지 : " + gameStage.ToString();
         if (gameStage >= 21) {
             StartCoroutine("WinGameTimer");
         }
