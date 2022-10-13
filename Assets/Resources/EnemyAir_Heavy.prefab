@@ -145,7 +145,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 1.5
-  enemyHp: 35
+  enemyHp: 50
   photonV: {fileID: 966191983016389156}
 --- !u!114 &966191983016389156
 MonoBehaviour:

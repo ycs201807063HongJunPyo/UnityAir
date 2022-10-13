@@ -36,6 +36,9 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     
     public void Connect() { 
         PhotonNetwork.ConnectUsingSettings();
+        if (NickNameInput.text == "") {
+            NickNameInput.text = Random.Range(0, 100).ToString();
+        }
         PhotonNetwork.LocalPlayer.NickName = NickNameInput.text;
         roomOp.MaxPlayers = 2;
         roomOp.IsOpen = true;
@@ -43,12 +46,18 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public void SoloConnect() {
         PhotonNetwork.ConnectUsingSettings();
+        if (NickNameInput.text == "") {
+            NickNameInput.text = Random.Range(0, 100).ToString();
+        }
         PhotonNetwork.LocalPlayer.NickName = NickNameInput.text;
         roomOp.MaxPlayers = 1;
         roomOp.IsOpen = false;
     }
 
     public override void OnConnectedToMaster() {
+        if(RoomInput.text == "") {
+            RoomInput.text = Random.Range(0, 300).ToString();
+        }
         PhotonNetwork.JoinOrCreateRoom(RoomInput.text, roomOp, null);
     }
 

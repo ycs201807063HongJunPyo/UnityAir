@@ -45,9 +45,6 @@ public class GameManager : MonoBehaviourPun, IPunObservable {
             }
             curDelay += Time.deltaTime;
             if (curDelay > maxDelay) {
-                if(gameStage >= 10) {
-                    SpawnEnemy();
-                }
                 SpawnEnemy();
                 maxDelay = Random.Range(0.3f, 0.8f);
                 curDelay = 0;
@@ -83,6 +80,14 @@ public class GameManager : MonoBehaviourPun, IPunObservable {
             PhotonNetwork.Instantiate(cloudObjs[ranCloud].name, spawnPoints[ranPoint].position, spawnPoints[ranPoint].rotation);
         }
         PhotonNetwork.Instantiate(enemyObjs[ranEnemy].name, spawnPoints[ranPoint].position, spawnPoints[ranPoint].rotation);
+        //2배
+        if (gameStage >= 10) {
+            int ranPointTwo = ranPoint + 1;
+            if(ranPointTwo == 5) {
+                ranPointTwo = 0;
+            }
+            PhotonNetwork.Instantiate(enemyObjs[ranEnemy].name, spawnPoints[ranPointTwo].position, spawnPoints[ranPointTwo].rotation);
+        }
         gameCurUnit--;
         gameStageText.text = "현재 스테이지 : " + gameStage.ToString() + "\n 남은 적 공세 : " + gameCurUnit;
     }
